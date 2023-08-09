@@ -19,13 +19,9 @@ cd VM-WorkStation-tools
 # Initial username and Password are ubuntu/123
 ```
 
-## Furture
-1. The tool currently only supports ubuntu and will supports multiple version os,such as centos,kylin etc.
+# Furture
+1. The tool currently only supports ubuntu--cloud-server and will supports multiple version os.
 
-2. Support docker environment configuration. For example, Configure docker private repo.
-
-3. Open.
+2. Open.
 
 ## FAQ
-Frequently asked questions.
-
