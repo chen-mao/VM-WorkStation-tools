@@ -32,35 +32,29 @@ if [ ! -f ~/Downloads/$baseimg ]; then
 fi
 
 # create working snapshot, increase size to 5G
+mkdir -p $hostname
 snapshot=$hostname-snapshot-cloudimg.qcow2
-sudo rm $snapshot
-qemu-img create -b ~/Downloads/$baseimg -f qcow2 -F qcow2 $snapshot 10G
-qemu-img info $snapshot
+sudo rm $hostname/$snapshot
+qemu-img create -b ~/Downloads/$baseimg -f qcow2 -F qcow2 $hostname/$snapshot 500G
+qemu-img info $hostname/$snapshot
 
 # insert metadata into seed image
 seed=$hostname-seed.img
-echo "instance-id: $(uuidgen || echo i-abcdefg)" > $hostname-metadata
+echo "instance-id: $(uuidgen || echo i-abcdefg)" > $hostname/$hostname-metadata
 # cloud-localds - create a disk for cloud-init to utilize the nocloud datasource
-cloud-localds -v $seed  cloud_init.cfg $hostname-metadata --network-config=network_config_static.cfg
-
-# create 2nd data disk, 20G sparse
-disk2=$hostname-extra.qcow2
-sudo rm $disk2
-qemu-img create -f qcow2 $disk2 20G
+cloud-localds -v $hostname/$seed  cloud_init.cfg $hostname/$hostname-metadata --network-config=network_config_static.cfg
 
 # ensure file permissions belong to kvm group
 sudo chmod 666 ~/Downloads/$baseimg
-sudo chmod 666 $snapshot
-chmod 666 $disk2
-sudo chown $USER:kvm $snapshot $seed $disk2
+sudo chmod 666 $hostname/$snapshot
+sudo chown $USER:kvm $hostname/$snapshot $hostname/$seed 
 
 # create VM using libvirt
 virt-install --name $hostname \
   --virt-type kvm --memory 2048 --vcpus 2 \
   --boot hd,menu=on \
-  --disk path=$seed,device=cdrom \
-  --disk path=$snapshot,device=disk \
-  --disk path=$disk2,device=disk \
+  --disk path=$hostname/$seed,device=cdrom \
+  --disk path=$hostname/$snapshot,device=disk \
   --graphics $graphicsType \
   --os-type Linux --os-variant $os_variant \
   --network bridge=virbr0  \
